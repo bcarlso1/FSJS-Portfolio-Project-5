@@ -1,24 +1,31 @@
-// to do...
-// modal nav
-// event target for modal
-// modal display
 
 
+  // OVERLAY
+
+  var overlay = document.createElement('div');
+  overlay.style.zIndex = "3";
+  overlay.style.backgroundColor = "navy";
+  overlay.style.position = "fixed";
+  overlay.style.display = "none";
+  overlay.style.height = "100%";
+  overlay.style.width = "100%";
+  overlay.style.opacity = ".4";
+  overlay.style.top = "0";
+  document.body.appendChild(overlay);
 
 const parentDiv = document.getElementById('gallery');
-const cards = document.getElementsByClassName('card');
 const url = 'https://randomuser.me/api/?results=12';
 let employeeData;
+var targetCard;
 
 fetch(url)
   .then(response => response.json())
   .then(data => data.results.map((employee) => {
       employeeData = data;
-      // console.log(data);
-      var employeeDiv = document.createElement("div");
-      employeeDiv.innerHTML = 
-      `<div class="card">
-      <div class="card-img-container">
+      var cardDiv = document.createElement("div");
+      cardDiv.classList.add('card');
+      cardDiv.innerHTML = 
+      `<div class="card-img-container">
           <img class="card-img" src="${employee.picture.medium}" alt="profile picture">
       </div>
       <div class="card-info-container">
@@ -28,14 +35,27 @@ fetch(url)
       </div>
   </div>`;
        
-      employeeDiv.classList.add("employee");
-      parentDiv.appendChild(employeeDiv);
-      var cardClass = document.getElementsByClassName('card');
-        for (var i = 0; i < cardClass.length; i++) {
-          cardClass[i].setAttribute("id", `card-${i}`);
-        }
-  }));
+    
+      parentDiv.appendChild(cardDiv);
+  })
+  );
 
+  setTimeout(function() {
+
+  
+     var cardClass = document.getElementsByClassName('card');
+       for (var i = 0; i < cardClass.length; i++) {
+         cardClass[i].classList.add(i);
+        };
+
+  for (var i = 0; i < cardClass.length; i++) {
+    cardClass[i].addEventListener("click", (e) => {
+    targetCard = e.currentTarget;
+    cardListen();
+    overlay.style.display = "";
+    }
+    )};  
+  }, 500);
 
 
 /* ***********
@@ -43,31 +63,33 @@ MODAL
 *********** */
 var modal = document.createElement('div');
 modal.setAttribute('id', 'modal-container');
-modal.setAttribute('z-index', '2');
-modal.setAttribute('position', 'fixed');
-modal.setAttribute('width', '100vw');
-modal.setAttribute('height', '100vh');
+modal.style.position = "fixed";
+modal.style.top = "100px";
+modal.style.left= "50%";
+modal.style.width = "500px";
+modal.style.marginLeft = "-250px";
+modal.style.zIndex = "5";
 var body = document.getElementsByTagName('body')[0];
+body.style.alignItems = "center";
 var header = document.getElementsByTagName('header')[0];
-header.insertAdjacentElement("afterend", modal);
+body.insertAdjacentElement("afterbegin", modal);
 
 window.onload = function() {
     document.getElementById('modal-container').style.display = "none"
   } 
 
-    //document.querySelector('.card')
-parentDiv.addEventListener("click", (e) => {
-     console.log(e.target);
-      // console.log(employeeData.results[1].location.postcode)
-     
+   
+  function cardListen() {
+      console.log(targetCard);
+      var modalCount = 0;
       for (var i = 0; i < employeeData.results.length; i++) {
        
-        if (e.target.firstElementChild.innerHTML.includes(employeeData.results[i].name.first)) {
+        if (targetCard.firstElementChild.nextElementSibling.innerHTML.includes(employeeData.results[i].name.first)) {
           modal.innerHTML = 
           `<div class="modal">
           <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-          <div id="right">&#62;</div>
-            <div id="left">&#60;</div>
+          <div id="right" style="font-size:48px; width:30px; position:relative; right:-380px; top:245px;">&#62;</div>
+            <div id="left" style="font-size:48px; width:30px; position:relative; left:10px; top:200px;">&#60;</div>
           <div id="modal-info-container">
            
               <img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
@@ -80,52 +102,109 @@ parentDiv.addEventListener("click", (e) => {
               <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} 
           </div>`;
           var modalContent = document.getElementById('modal-info-container');
-          // console.log(modalContent)
-          modalContent.setAttribute('position', 'absolute');
-          modalContent.setAttribute('top', '200px');
-          modalContent.setAttribute('z-index', '10');  
-        //  event.target.setAttribute('id', 'selection10');
         } 
       }
-    
+
       if (document.getElementById('modal-container').style.display == "none") {
        document.getElementById('modal-container').style.display = "block";
        
      }
   
-   document.getElementById('modal-close-btn').addEventListener("click", (e) => {
-    if (document.getElementById('modal-container').style.display == "block") {
-      document.getElementById('modal-container').style.display = "none";
+        document.getElementById('modal-close-btn').addEventListener("click", (e) => {
+          overlay.style.display = "none";
+        if (document.getElementById('modal-container').style.display == "block") {
+        document.getElementById('modal-container').style.display = "none";
 
     }  
   });
-
-  
   /* *****************
   NAVIGATE MODAL 
   ***************** */
-  var counter = 10;
-   console.log(document.getElementById('left').innerHTML);
- document.getElementById('left').addEventListener("click", (e) => {
-    
-    document.getElementById('modal-info-container').innerHTML = document.getElementById(`selection${counter}`).previousElementSibling.innerHTML;
-    var newSelection = document.getElementById(`selection${counter}`).previousElementSibling;
-    counter--;
-    newSelection.setAttribute("id", `selection${counter}`); 
-  });
-  
-  document.getElementById('right').addEventListener("click", (e) => {
-    document.getElementById('modal-info-container').innerHTML = document.getElementById(`selection${counter}`).nextElementSibling.innerHTML;
-    var newSelection = document.getElementById(`selection${counter}`).nextElementSibling;
-    counter++;
-    newSelection.setAttribute("id", `selection${counter}`); 
-  }); 
+var i;
 
-});
+document.getElementById('left').addEventListener("click", (e) => {
+
+  if (modalCount == 0) { 
+  var currentCard = targetCard.className.charAt(5);
+   i = Number(currentCard) - 1;
+   if (i == -1) {
+     i = 11;
+   }
+   modalContent.innerHTML = 
+   `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
+   <h3 id="name" class="modal-name cap">${employeeData.results[i].name.first} ${employeeData.results[i].name.last}</h3>
+   <p class="modal-text">${employeeData.results[i].email}</p>
+   <p class="modal-text cap">${employeeData.results[i].location.city}</p>
+   <hr>
+   <p class="modal-text">${employeeData.results[i].phone}</p>
+   <p class="modal-text">${employeeData.results[i].location.street.number} ${employeeData.results[i].location.street.name}, ${employeeData.results[i].location.city}, ${employeeData.results[i].location.state} ${employeeData.results[i].location.postcode}</p>
+   <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} `;
+   
+    modalCount++;
+    i--;
+  }
+  else {
+    if (i == -1) {
+        i = 11;
+    }
+    modalContent.innerHTML =
+    `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
+       <h3 id="name" class="modal-name cap">${employeeData.results[i].name.first} ${employeeData.results[i].name.last}</h3>
+       <p class="modal-text">${employeeData.results[i].email}</p>
+       <p class="modal-text cap">${employeeData.results[i].location.city}</p>
+       <hr>
+       <p class="modal-text">${employeeData.results[i].phone}</p>
+       <p class="modal-text">${employeeData.results[i].location.street.number} ${employeeData.results[i].location.street.name}, ${employeeData.results[i].location.city}, ${employeeData.results[i].location.state} ${employeeData.results[i].location.postcode}</p>
+       <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} `;
+      i--;
+      }
+ });
+ 
+ document.getElementById('right').addEventListener("click", (e) => {
+  
+  if (modalCount == 0) { 
+    var currentCard = targetCard.className.charAt(5);
+     i = Number(currentCard) + 1;
+     if (i == 11) {
+       i = 0;
+     }
+     modalContent.innerHTML = 
+     `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
+     <h3 id="name" class="modal-name cap">${employeeData.results[i].name.first} ${employeeData.results[i].name.last}</h3>
+     <p class="modal-text">${employeeData.results[i].email}</p>
+     <p class="modal-text cap">${employeeData.results[i].location.city}</p>
+     <hr>
+     <p class="modal-text">${employeeData.results[i].phone}</p>
+     <p class="modal-text">${employeeData.results[i].location.street.number} ${employeeData.results[i].location.street.name}, ${employeeData.results[i].location.city}, ${employeeData.results[i].location.state} ${employeeData.results[i].location.postcode}</p>
+     <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} `;
+     
+      modalCount++;
+      i++;
+    }
+    else {
+      if (i == 11) {
+          i = 0;
+      }
+      modalContent.innerHTML =
+      `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
+         <h3 id="name" class="modal-name cap">${employeeData.results[i].name.first} ${employeeData.results[i].name.last}</h3>
+         <p class="modal-text">${employeeData.results[i].email}</p>
+         <p class="modal-text cap">${employeeData.results[i].location.city}</p>
+         <hr>
+         <p class="modal-text">${employeeData.results[i].phone}</p>
+         <p class="modal-text">${employeeData.results[i].location.street.number} ${employeeData.results[i].location.street.name}, ${employeeData.results[i].location.city}, ${employeeData.results[i].location.state} ${employeeData.results[i].location.postcode}</p>
+         <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} `;
+        i++;
+        }
+   });
+
+  }
+
   /* **********
   AUTOCOMPLETE SEARCH
   ************** */
   var search = document.createElement('input');
+  search.style.padding = "10px";
   search.setAttribute("id", "searchBar");
   search.setAttribute("type", "search");
   search.setAttribute("placeholder", "Find an employee..");
@@ -158,6 +237,5 @@ parentDiv.addEventListener("click", (e) => {
       }
         
   } 
-  } 
-  ;
-  
+  };
+
