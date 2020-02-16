@@ -1,6 +1,7 @@
 
-
-  // OVERLAY
+/*****************************
+CREATE MODAL OVERLAY/BACKGROUND
+ ****************************/
 
   var overlay = document.createElement('div');
   overlay.style.zIndex = "3";
@@ -18,10 +19,16 @@ const url = 'https://randomuser.me/api/?results=12';
 let employeeData;
 var targetCard;
 
+/*****************************
+ FETCH API
+ ****************************/
+
 fetch(url)
   .then(response => response.json())
   .then(data => data.results.map((employee) => {
-      employeeData = data;
+    // save data in variable for modal  
+    employeeData = data;
+    // create cards
       var cardDiv = document.createElement("div");
       cardDiv.classList.add('card');
       cardDiv.innerHTML = 
@@ -40,18 +47,24 @@ fetch(url)
   })
   );
 
+  // set short delay for fetch to run, need cards populated to add class to each one for numbering
   setTimeout(function() {
-
-  
      var cardClass = document.getElementsByClassName('card');
        for (var i = 0; i < cardClass.length; i++) {
          cardClass[i].classList.add(i);
         };
 
+ /*****************************
+ LISTENER FOR OPENING MODAL
+ ****************************/       
+
   for (var i = 0; i < cardClass.length; i++) {
     cardClass[i].addEventListener("click", (e) => {
+    // set variable for click at current target (only selects on card- not children)
     targetCard = e.currentTarget;
+    // call function to execute click action
     cardListen();
+    // show overlay
     overlay.style.display = "";
     }
     )};  
@@ -59,10 +72,11 @@ fetch(url)
 
 
 /* ***********
-MODAL
+CREATE MODAL
 *********** */
 var modal = document.createElement('div');
 modal.setAttribute('id', 'modal-container');
+// align modal
 modal.style.position = "fixed";
 modal.style.top = "100px";
 modal.style.left= "50%";
@@ -71,20 +85,25 @@ modal.style.marginLeft = "-250px";
 modal.style.zIndex = "5";
 var body = document.getElementsByTagName('body')[0];
 body.style.alignItems = "center";
-var header = document.getElementsByTagName('header')[0];
 body.insertAdjacentElement("afterbegin", modal);
 
+// hide modal on loading page
 window.onload = function() {
-    document.getElementById('modal-container').style.display = "none"
+    document.getElementById('modal-container').style.display = "none";
   } 
 
-   
+/*****************************
+ CORE FUNCTION OF MODAL LISTENER- INCLUDING NAVIGATE
+ ****************************/   
   function cardListen() {
       console.log(targetCard);
+      // counter to track if initial click on card or navigating in modal
       var modalCount = 0;
+      // for each employee from fetch
       for (var i = 0; i < employeeData.results.length; i++) {
-       
+        // if name in clicked card include name of employee from fetch
         if (targetCard.firstElementChild.nextElementSibling.innerHTML.includes(employeeData.results[i].name.first)) {
+         // populate modal w employee data from fetch
           modal.innerHTML = 
           `<div class="modal">
           <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
@@ -104,12 +123,12 @@ window.onload = function() {
           var modalContent = document.getElementById('modal-info-container');
         } 
       }
-
+      // show modal
       if (document.getElementById('modal-container').style.display == "none") {
        document.getElementById('modal-container').style.display = "block";
        
      }
-  
+     // hide modal & overlay on close
         document.getElementById('modal-close-btn').addEventListener("click", (e) => {
           overlay.style.display = "none";
         if (document.getElementById('modal-container').style.display == "block") {
@@ -120,16 +139,24 @@ window.onload = function() {
   /* *****************
   NAVIGATE MODAL 
   ***************** */
-var i;
 
+// set variable i for tracking current card
+  var i;
+// on clicking left
 document.getElementById('left').addEventListener("click", (e) => {
-
+  // if first time navigating since opening modal
   if (modalCount == 0) { 
-  var currentCard = targetCard.className.charAt(5);
+  // get numbered class name
+  var currentCard = targetCard.className.slice(5, 7);
+  console.log(currentCard);
+  // subtracr 1 for class of card before
    i = Number(currentCard) - 1;
+   // if none to left, set to class name of last card
+   // use i == -1 bc subtracted already above
    if (i == -1) {
      i = 11;
    }
+   // populate with content of previous employee (data saved from fetch)
    modalContent.innerHTML = 
    `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
    <h3 id="name" class="modal-name cap">${employeeData.results[i].name.first} ${employeeData.results[i].name.last}</h3>
@@ -139,14 +166,21 @@ document.getElementById('left').addEventListener("click", (e) => {
    <p class="modal-text">${employeeData.results[i].phone}</p>
    <p class="modal-text">${employeeData.results[i].location.street.number} ${employeeData.results[i].location.street.name}, ${employeeData.results[i].location.city}, ${employeeData.results[i].location.state} ${employeeData.results[i].location.postcode}</p>
    <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} `;
-   
+   // update to show future arrow clicks are not first one
     modalCount++;
-    i--;
+    console.log(i);
   }
+  // once you have navigated once already
   else {
-    if (i == -1) {
+        // if none to left, set to class name of last card
+       if (i == 0) {
         i = 11;
+       } else {
+           // ptherwise set i to move to previous employee
+        i--;
+        console.log(i);
     }
+    // populate modal
     modalContent.innerHTML =
     `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
        <h3 id="name" class="modal-name cap">${employeeData.results[i].name.first} ${employeeData.results[i].name.last}</h3>
@@ -156,18 +190,22 @@ document.getElementById('left').addEventListener("click", (e) => {
        <p class="modal-text">${employeeData.results[i].phone}</p>
        <p class="modal-text">${employeeData.results[i].location.street.number} ${employeeData.results[i].location.street.name}, ${employeeData.results[i].location.city}, ${employeeData.results[i].location.state} ${employeeData.results[i].location.postcode}</p>
        <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} `;
-      i--;
       }
  });
  
  document.getElementById('right').addEventListener("click", (e) => {
-  
+    // if first time navigating since opening modal
   if (modalCount == 0) { 
-    var currentCard = targetCard.className.charAt(5);
+      // get numbered class name
+    var currentCard = targetCard.className.slice(5, 7);
+      // add 1 for class of card after
      i = Number(currentCard) + 1;
-     if (i == 11) {
+     // if no cards after, switch to beginning
+     // i = 12 used bc already added 1 above 
+     if (i == 12) {
        i = 0;
      }
+     // populate html with next card content
      modalContent.innerHTML = 
      `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
      <h3 id="name" class="modal-name cap">${employeeData.results[i].name.first} ${employeeData.results[i].name.last}</h3>
@@ -177,14 +215,19 @@ document.getElementById('left').addEventListener("click", (e) => {
      <p class="modal-text">${employeeData.results[i].phone}</p>
      <p class="modal-text">${employeeData.results[i].location.street.number} ${employeeData.results[i].location.street.name}, ${employeeData.results[i].location.city}, ${employeeData.results[i].location.state} ${employeeData.results[i].location.postcode}</p>
      <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} `;
-     
+        // update to show future arrow clicks are not first one
       modalCount++;
-      i++;
     }
+      // once you have navigated once already
     else {
+      // if no cards after, switch to beginning
       if (i == 11) {
           i = 0;
+      } else {
+      // otherwise add 1 to move to next card
+      i++;
       }
+           // populate html with next card content
       modalContent.innerHTML =
       `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
          <h3 id="name" class="modal-name cap">${employeeData.results[i].name.first} ${employeeData.results[i].name.last}</h3>
@@ -194,7 +237,6 @@ document.getElementById('left').addEventListener("click", (e) => {
          <p class="modal-text">${employeeData.results[i].phone}</p>
          <p class="modal-text">${employeeData.results[i].location.street.number} ${employeeData.results[i].location.street.name}, ${employeeData.results[i].location.city}, ${employeeData.results[i].location.state} ${employeeData.results[i].location.postcode}</p>
          <p class="modal-text">${employeeData.results[i].dob.date.slice(5, 7)}/${employeeData.results[i].dob.date.slice(8,10)}/${employeeData.results[i].dob.date.substr(0,4)} `;
-        i++;
         }
    });
 
@@ -203,6 +245,7 @@ document.getElementById('left').addEventListener("click", (e) => {
   /* **********
   AUTOCOMPLETE SEARCH
   ************** */
+ // create element and set type and stles
   var search = document.createElement('input');
   search.style.padding = "10px";
   search.setAttribute("id", "searchBar");
@@ -215,24 +258,30 @@ document.getElementById('left').addEventListener("click", (e) => {
   var items = document.getElementsByClassName('card-name');
   var itemsParent = document.getElementsByClassName('card');
   
-  
+  // add listener for keyup
   searchBar.addEventListener('keyup', myFunction);
   
   function myFunction() {
-      searchBar.value = searchBar.value.toLowerCase();
+    // set search value to lower case  
+    searchBar.value = searchBar.value.toLowerCase();
+    // save search as variable
       var mySearch = searchBar.value;
       console.log(mySearch);
-  
+    // for each name in cards
       for (var i = 0; i < items.length; i += 1) {
-          var title = items[i].innerHTML.toLowerCase();
+        // save name as variable
+        var title = items[i].innerHTML.toLowerCase();
           console.log(title);
+          // if name include search
           if (title.includes(mySearch)) {
+            // display corresponding card, otherwise hide it
             itemsParent[i].style.display = "";
                 } else {
              itemsParent[i].style.display = "none";
             }
         var alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-          if (alphabet.includes(title.charAt(0)) == false) {
+        // if alphabet doesnt include 1st character of name hide the card   
+        if (alphabet.includes(title.charAt(0)) == false && mySearch != "") {
                 itemsParent[i].style.display = "none";
       }
         
