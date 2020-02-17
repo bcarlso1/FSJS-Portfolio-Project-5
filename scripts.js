@@ -44,11 +44,13 @@ fetch(url)
        
     
       parentDiv.appendChild(cardDiv);
+      // add event listeners
+      listenersAdd();
   })
   );
 
   // set short delay for fetch to run, need cards populated to add class to each one for numbering
-  setTimeout(function() {
+function listenersAdd() {
      var cardClass = document.getElementsByClassName('card');
        for (var i = 0; i < cardClass.length; i++) {
          cardClass[i].classList.add(i);
@@ -60,15 +62,20 @@ fetch(url)
 
   for (var i = 0; i < cardClass.length; i++) {
     cardClass[i].addEventListener("click", (e) => {
+      console.log(cardClass[i]);
     // set variable for click at current target (only selects on card- not children)
+    if (cardClass[i] == targetCard) {
     targetCard = e.currentTarget;
+    console.log(targetCard);
+    console.log(cardClass[i]);
     // call function to execute click action
     cardListen();
     // show overlay
     overlay.style.display = "";
     }
+  }
     )};  
-  }, 500);
+  };
 
 
 /* ***********
@@ -156,6 +163,13 @@ document.getElementById('left').addEventListener("click", (e) => {
    if (i == -1) {
      i = 11;
    }
+   while (document.getElementsByClassName(i)[0].style.display == "none") {
+     i--;
+     if (i == -1) {
+      i = 11;
+    }
+     console.log('hidden');
+   }
    // populate with content of previous employee (data saved from fetch)
    modalContent.innerHTML = 
    `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
@@ -179,6 +193,13 @@ document.getElementById('left').addEventListener("click", (e) => {
            // ptherwise set i to move to previous employee
         i--;
         console.log(i);
+    }
+    while (document.getElementsByClassName(i)[0].style.display == "none") {
+      i--;
+      if (i == -1) {
+        i = 11;
+      }
+      console.log('hidden');
     }
     // populate modal
     modalContent.innerHTML =
@@ -205,6 +226,13 @@ document.getElementById('left').addEventListener("click", (e) => {
      if (i == 12) {
        i = 0;
      }
+     while (document.getElementsByClassName(i)[0].style.display == "none") {
+      i++;
+      if (i == 12) {
+        i = 0;
+      }
+      console.log('hidden');
+    }
      // populate html with next card content
      modalContent.innerHTML = 
      `<img class="modal-img" src="${employeeData.results[i].picture.medium}" alt="profile picture">
@@ -226,6 +254,13 @@ document.getElementById('left').addEventListener("click", (e) => {
       } else {
       // otherwise add 1 to move to next card
       i++;
+      }
+      while (document.getElementsByClassName(i)[0].style.display == "none") {
+       i++;
+        console.log('hidden');
+        if (i == 12) {
+          i = 0;
+        }
       }
            // populate html with next card content
       modalContent.innerHTML =
