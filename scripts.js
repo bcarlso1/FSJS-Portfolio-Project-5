@@ -17,7 +17,8 @@ CREATE MODAL OVERLAY/BACKGROUND
 const parentDiv = document.getElementById('gallery');
 const url = 'https://randomuser.me/api/?results=12';
 let employeeData;
-var targetCard;
+let targetCard;
+let i = 0;  
 
 /*****************************
  FETCH API
@@ -29,7 +30,7 @@ fetch(url)
     // save data in variable for modal  
     employeeData = data;
     // create cards
-      var cardDiv = document.createElement("div");
+    var cardDiv = document.createElement("div");
       cardDiv.classList.add('card');
       cardDiv.innerHTML = 
       `<div class="card-img-container">
@@ -41,41 +42,24 @@ fetch(url)
           <p class="card-text cap">${employee.location.city}, ${employee.location.state}</p>
       </div>
   </div>`;
-       
-    
+
+  /*****************************
+   LISTENER FOR OPENING MODAL
+ ****************************/    
+      cardDiv.classList.add(i);  
+      cardDiv.addEventListener("click", (e) => {
+       // set variable for click at current target (only selects on card- not children)
+          targetCard = e.currentTarget;
+          // call function to execute click action
+          cardListen();
+          // show overlay
+          overlay.style.display = "";
+       }
+     
+      )  
       parentDiv.appendChild(cardDiv);
-      // add event listeners
-      listenersAdd();
-  })
-  );
-
-  // set short delay for fetch to run, need cards populated to add class to each one for numbering
-function listenersAdd() {
-     var cardClass = document.getElementsByClassName('card');
-       for (var i = 0; i < cardClass.length; i++) {
-         cardClass[i].classList.add(i);
-        };
-
- /*****************************
- LISTENER FOR OPENING MODAL
- ****************************/       
-
-  for (var i = 0; i < cardClass.length; i++) {
-    cardClass[i].addEventListener("click", (e) => {
-      console.log(cardClass[i]);
-    // set variable for click at current target (only selects on card- not children)
-    if (cardClass[i] == targetCard) {
-    targetCard = e.currentTarget;
-    console.log(targetCard);
-    console.log(cardClass[i]);
-    // call function to execute click action
-    cardListen();
-    // show overlay
-    overlay.style.display = "";
-    }
-  }
-    )};  
-  };
+      i++;
+  }));
 
 
 /* ***********
@@ -138,6 +122,7 @@ window.onload = function() {
      // hide modal & overlay on close
         document.getElementById('modal-close-btn').addEventListener("click", (e) => {
           overlay.style.display = "none";
+          modalCount == 0;
         if (document.getElementById('modal-container').style.display == "block") {
         document.getElementById('modal-container').style.display = "none";
 
@@ -155,8 +140,7 @@ document.getElementById('left').addEventListener("click", (e) => {
   if (modalCount == 0) { 
   // get numbered class name
   var currentCard = targetCard.className.slice(5, 7);
-  console.log(currentCard);
-  // subtracr 1 for class of card before
+  // subtract 1 for class of card before
    i = Number(currentCard) - 1;
    // if none to left, set to class name of last card
    // use i == -1 bc subtracted already above
